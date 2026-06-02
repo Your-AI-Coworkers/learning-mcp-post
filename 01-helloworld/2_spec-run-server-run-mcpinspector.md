@@ -1,6 +1,6 @@
 # Part 2: Run and Verify the MCP Server
 
-Purpose: Run the local hello-world MCP server and verify it with MCP Inspector.
+Purpose: Run the local hello-world MCP server.
 
 Date: 2026-06-01
 
@@ -114,62 +114,9 @@ Leave this terminal open. The server blocks while it listens for MCP clients.
 
 ---
 
-## Step 4 - Run MCP Inspector
-
-Open a second terminal and run:
-
-```powershell
-npx @modelcontextprotocol/inspector
-```
-
-Expected output includes a local Inspector URL, commonly:
-
-```text
-MCP Inspector running at http://localhost:6274
-```
-
-Open that URL in your browser.
-
----
-
-## Step 5 - Connect Inspector to the Server
-
-In MCP Inspector:
-
-1. Set transport to `Streamable HTTP`.
-2. Enter server URL: `http://127.0.0.1:8000/mcp`.
-3. Click `Connect`.
-4. Open the `Tools` tab.
-5. Confirm `hello_from_mcp` appears.
-6. Run `hello_from_mcp`.
-
-Expected tool response:
-
-```text
-Hello from the local MCP server.
-```
-
-If the tool appears and returns the greeting, the local MCP server is working.
-
----
-
-## Step 6 - Stop the Server
-
-When finished, return to the server terminal and press:
-
 ```text
 Ctrl+C
 ```
 
 ---
 
-## Troubleshooting
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| `uv: command not found` | uv is not installed or not on PATH | Install uv, restart the terminal, then run `uv --version` |
-| `ModuleNotFoundError: mcp` | Dependencies are not synced | Run `uv sync` |
-| `TypeError` mentioning `FastMCP.run()` | Host, port, or path were passed to `mcp.run(...)` | Move HTTP config to `FastMCP(...)` and call `mcp.run(transport="streamable-http")` |
-| `Connection refused` in Inspector | Server is not running | Start the server with `uv run python server.py` |
-| Inspector cannot connect | Wrong transport or URL | Use `Streamable HTTP` and `http://127.0.0.1:8000/mcp` |
-| Port `8000` is already in use | Another process is using the port | Stop the other process or update the server port consistently |
