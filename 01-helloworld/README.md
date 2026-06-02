@@ -1,8 +1,7 @@
-# MCP Tutorial — **Hello World**
-*Let us build a MCP Server*
-
-Steps to set up, run, and test the MCP local server with OpenAI Codex
-
+# codex_setup.md
+# Purpose: Steps to set up, run, and test the MCP local server with OpenAI Codex
+# Date: 2026-06-01
+# Status: Draft v1
 
 ---
 
@@ -118,7 +117,7 @@ MCP Inspector is a browser-based GUI for testing MCP servers directly — indepe
 No install required. Run from any terminal:
 
 ```bash
-npx @modelcontextprotocol/inspector --verbose
+npx @modelcontextprotocol/inspector
 ```
 
 Expected output:
@@ -148,8 +147,3 @@ Use MCP Inspector to validate tool metadata (name, description, input schema) in
 | `ModuleNotFoundError: mcp` | venv not activated or sync not run | `uv sync` then retry |
 | Tool returns error | MCP version mismatch | Confirm `mcp>=1.9.0` via `uv pip show mcp` |
 | Inspector can't connect | Wrong transport selected | Set transport to `Streamable HTTP`, not SSE |
-
-
---- 
-
-> [Next >](/02-tool-metadata/README.md)
