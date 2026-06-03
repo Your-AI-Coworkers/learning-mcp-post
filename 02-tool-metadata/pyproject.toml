@@ -1,0 +1,9 @@
+[project]
+name = "02-tool-metadata"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp[cli]>=1.9.0",
+    "pandas>=3.0.3",
+]
