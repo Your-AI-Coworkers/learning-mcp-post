@@ -1,32 +1,28 @@
+# MCP Tutorial Series
+---
 
-# MCP Inspector How To
+## Tutorial # 02 : **Exploring MCP Inspector**
 
-Bare minimum setup for running the local MCP server and testing it with MCP Inspector.
+> **Purpose:** Steps to set up, run, and test the MCP local server with OpenAI Codex. How MCP Inspector works. What can we do with it. Builds on top [tutorial 1](../01-helloworld/README.md#mcp-tutorial-series), where we setup a MCP Server with one tool. 
 
+> **Date:** 2026-06-03
+
+> **Status:** Draft
+
+> **Version:** v1
+
+---
+
+## Main points to cover:
+
+- Add a few more Tool in server.py simple MCP Server and view them in inspector. 
+- 
 
 ## Steps to Hello World MCP
 
 ### Required Environment Setup
 
-- Python **FastMCP** based MCP Server.
-- **uv** will be used for scaffolding.
-- Node.js based **MCP Inspector** will be used for client side testing.
-
-
-### Start Environment Setup
-
-- Verify uv
-
-```powershell
-uv --version
-
-
-uv init --no-readme
-uv add "mcp[cli]"
-uv sync
-
-```
-
+- Details about environment setup and how to start basic bare bone MCP server is already discussed in tutorial 1. 
 
 ### Create MCP Server
 
@@ -37,24 +33,4 @@ uv sync
 
 ### Run the Server
 
-- In a terminal 
-
-```powershell
-uv run python server.py
-```
-
-- Open another terminal
-
-```powershell
-npx @modelcontextprotocol/inspector --verbose
-```
-
-
-### Test server 
-
-- In a browser open MCP Inspector
-	- Set transport to `Streamable HTTP`.
-	- Enter URL: `http://127.0.0.1:8000/mcp`.
-	- Click `Connect`.
-	- Open `Tools`.
-	- Run `hello_from_mcp` and verify the greeting response.
+### Inspect with MCP Inspector
