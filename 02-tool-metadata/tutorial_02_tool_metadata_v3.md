@@ -11,7 +11,7 @@
 
 > **Status:** Draft
 
-> **Version:** v2
+> **Version:** v3
 
 > **Prerequisite:** Tutorial 01 (Hello World) — a running FastMCP server over Streamable HTTP, inspected once.
 
@@ -253,51 +253,135 @@ Enums map cleanly: a Python `Literal["male","female"]` becomes a JSON Schema `en
 
 ---
 
-## Part 5 — Generate the Server (Codex)
+## Part 5 — Set Up and Generate the Server
 
-Consistent with Tutorial 01's workflow: specify the contract, let the coding agent implement. Paste the following prompt to Codex (or Claude Code) in the `02-tool-metadata` project folder.
+### Project Layout
+
+Each tutorial in this series is a fully self-contained project. `02-tool-metadata` has no dependency on `01-helloworld` or any other folder — it does not import from them, share a venv with them, or modify their files. That isolation is by design: each folder corresponds to one LinkedIn post and one video.
+
+```
+learning-mcp/
+└── 02-tool-metadata/
+    ├── .python-version
+    ├── main.py
+    ├── pyproject.toml
+    ├── server.py
+    ├── uv.lock
+    ├── data/
+    │   └── titanic.csv
+    └── .venv/
+```
+
+---
+
+### Step 1 — Bootstrap the Project
+
+In VS Code terminal, navigate to the `learning-mcp` root and create the tutorial folder:
+
+```bash
+cd learning-mcp
+mkdir 02-tool-metadata
+cd 02-tool-metadata
+```
+
+Bootstrap the standalone project:
+
+```bash
+uv init --no-readme
+uv venv
+uv sync
+```
+
+Select the `.venv` interpreter in VS Code:
+`Ctrl+Shift+P` → `Python: Select Interpreter` → choose `.venv`
+
+---
+
+### Step 2 — Place the Data
+
+From inside `02-tool-metadata/`:
+
+```bash
+mkdir data
+```
+
+Copy `titanic.csv` (downloaded in Part 2) into the `data/` folder. Verify the file is present:
+
+```bash
+# Windows
+dir data	itanic.csv
+
+# macOS / Linux
+ls -lh data/titanic.csv
+```
+
+Expected: file present, non-zero size.
+
+---
+
+### Step 3 — Let Codex Generate the Server
+
+> **Boundary rule for Codex:** Work ONLY inside `02-tool-metadata/`. Do NOT open, reference, import from, or modify `01-helloworld` or any other folder in this repo.
+
+Paste the following prompt to Codex (or Claude Code) with `02-tool-metadata/` as the working directory:
 
 ```text
-Expand the existing FastMCP server (server.py) from Tutorial 01.
+Create a brand new standalone server.py from scratch in this folder (02-tool-metadata/).
+Do NOT read from, import from, or modify any file outside this folder.
 
-Keep the existing setup:
-- FastMCP over Streamable HTTP on 127.0.0.1:8000, path /mcp.
-- host, port, streamable_http_path configured on the FastMCP constructor.
-- Start with mcp.run(transport="streamable-http"); do not pass host/port/path to run().
-- Keep the existing hello_from_mcp tool unchanged.
-- main.py continues to start the same server object from server.py.
+Requirements:
+- Use Streamable HTTP on 127.0.0.1:8000 with path /mcp.
+- Configure host, port, and streamable_http_path on the FastMCP constructor.
+- Start the server with mcp.run(transport="streamable-http"); do not pass host, port,
+  or path to run().
+- Create main.py so running main.py starts the same server object from server.py.
+- Create pyproject.toml with dependencies: mcp[cli] >= 1.9.0, pandas.
 
-Dependencies (update pyproject.toml):
-- mcp[cli] >= 1.9.0   (structured output support)
-- pandas              (CSV reading)
+Tool 0 — recreate hello_from_mcp VERBATIM:
+  @mcp.tool(name="hello_from_mcp")
+  Docstring: "Return a short greeting from the local MCP server."
+  No parameters. Return type: str.
+  Body: return "Hello from the local MCP server."
 
-Data:
-- Read the Titanic CSV from a path in a module constant DATA_PATH = "./data/titanic.csv".
-- Columns used: Survived (0/1), Pclass (1/2/3), Sex (male/female), Age (float, may be NaN),
-  Fare (float), Embarked (C/Q/S), Name, PassengerId.
-- Load the CSV once at import time into a pandas DataFrame; reuse it across calls.
+Data setup:
+- Import Path from pathlib.
+- Set DATA_PATH = Path(__file__).parent / "data" / "titanic.csv"
+- Load the CSV once at import time: TITANIC_DF = pd.read_csv(DATA_PATH)
+- Columns used: Survived (0/1 int), Pclass (1/2/3 int), Sex (male/female str),
+  Age (float, may be NaN), Fare (float), Embarked (C/Q/S str), Name (str),
+  PassengerId (int).
 
-For EVERY tool: a precise @mcp.tool(name=...), a docstring whose FIRST line states what it
-does and when to use it (and, for the search pair, an explicit "Do NOT use ..." boundary),
-fully type-hinted parameters, and a typed structured return (Pydantic BaseModel) so an
-outputSchema is generated. Use Literal types for all enumerations. Mark optional params
-with defaults.
+For EVERY tool below: a precise @mcp.tool(name=...), a docstring whose FIRST line
+states what it does and when to use it (and, for the search pair, an explicit
+"Do NOT use..." boundary), fully type-hinted parameters, and a typed structured
+return (Pydantic BaseModel) so an outputSchema is generated. Use Literal types for
+all enumerations. Mark optional params with defaults.
+
+Tool 0 — name "hello_from_mcp" (VERBATIM from Tutorial 01)
+  @mcp.tool(name="hello_from_mcp")
+  Docstring: "Return a short greeting from the local MCP server."
+  No parameters. Return type: str.
+  Body: return "Hello from the local MCP server."
 
 Tool 1 — name "search_resumes"
-  Docstring: Search the candidate resume store for people matching a query. Use when the
-  user wants to FIND or shortlist candidates/people. Do NOT use to look up past projects.
+  Docstring: Search the candidate resume store for people matching a query. Use when
+  the user wants to FIND or shortlist candidates/people. Do NOT use to look up
+  past projects.
   Param: query: str (REQUIRED).
   Return model ResumeHit list: candidate_id: str, name: str, headline: str,
   match_snippet: str, score: float.
-  Implementation: return 3-5 realistic hard-coded sample candidates filtered by the query.
+  Implementation: return 3-5 realistic hard-coded sample candidates filtered by
+  the query.
 
 Tool 2 — name "search_pds"
-  Docstring: Search the Project Data Sheet store of the firm's past projects. Use when the
-  user wants the firm's EXPERIENCE / past work on a topic. Do NOT use to find people.
+  Docstring: Search the Project Data Sheet store of the firm's past projects. Use
+  when the user wants the firm's EXPERIENCE / past work on a topic. Do NOT use to
+  find people.
   Param: query: str (REQUIRED).
   Return model PdsHit list: pds_id: str, project_name: str, client: str,
   match_snippet: str, score: float.
-  Implementation: return 3-5 realistic hard-coded sample projects filtered by the query.
+  Implementation: return 3-5 realistic hard-coded sample projects filtered by
+  the query.
 
 Tool 3 — name "query_titanic_passengers"
   Docstring: Return Titanic passenger rows matching optional filters.
@@ -307,22 +391,28 @@ Tool 3 — name "query_titanic_passengers"
     embarked: Literal["C","Q","S"] | None = None
     min_age: float | None = None
     max_age: float | None = None
-    survived: bool | None = None   # maps to 0/1 in the data
-    limit: int = 20                # clamp to range 1..100
-  Return model PassengerRow list: passenger_id: int, name: str, pclass: int, sex: str,
-  age: float | None, fare: float, survived: int.
-  Implementation: filter the DataFrame by whichever params are provided; clamp limit to 1..100.
+    survived: bool | None = None    # maps to 0/1 in the data
+    limit: int = 20                 # clamp to range 1..100
+  Return model PassengerRow list: passenger_id: int, name: str, pclass: int,
+  sex: str, age: float | None, fare: float, survived: int.
+  Implementation: filter TITANIC_DF by whichever params are provided;
+  clamp limit to 1..100.
 
 Tool 4 — name "summarize_titanic_survival"
   Docstring: Aggregate survival statistics grouped by one categorical column.
   Param: group_by: Literal["sex","pclass","embarked","survived"] (REQUIRED).
-  Return model: group_by: str, groups: list of { value: str, total: int,
-  survived: int, survival_rate: float }.
-  Implementation: groupby the chosen column; survival_rate = survived/total rounded to 3 dp.
+  Return model: group_by: str, groups: list of SurvivalGroup { value: str,
+  total: int, survived: int, survival_rate: float }.
+  Implementation: groupby the chosen column on TITANIC_DF; survival_rate =
+  survived / total rounded to 3 dp.
 
-Prioritize correct names, docstrings, type hints, enum Literals, and structured return models
-over implementation cleverness.
+Prioritize correct names, docstrings, type hints, enum Literals, and structured
+return models over implementation cleverness.
 ```
+
+---
+
+### Step 4 — Sync and Run
 
 After Codex writes the files:
 
@@ -331,7 +421,13 @@ uv sync
 uv run python server.py
 ```
 
-Expected: the same startup banner as Tutorial 01 (Uvicorn on `127.0.0.1:8000`). Leave it running.
+Expected output:
+```
+INFO:     Started server process
+INFO:     Uvicorn running on http://127.0.0.1:8000
+```
+
+Leave this terminal open. The server blocks — it is now listening.
 
 ---
 
