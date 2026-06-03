@@ -125,7 +125,7 @@ MCP Inspector is a browser-based GUI for testing MCP servers directly — indepe
 No install required. Run from any terminal:
 
 ```bash
-npx @modelcontextprotocol/inspector
+npx @modelcontextprotocol/inspector --verbose
 ```
 
 Expected output:
