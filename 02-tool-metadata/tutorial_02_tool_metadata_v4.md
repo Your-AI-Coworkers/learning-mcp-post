@@ -1,5 +1,8 @@
+<<< improve content by 'tagging'>>>
+
+
 # MCP Tutorial Series
----
+
 
 ## Tutorial: **Tool Metadata — The Contract Between LLM and Execution**
 
@@ -7,9 +10,7 @@
 
 ## Why This Tutorial Exists
 
-Tutorial 01 proved a tool can be reached. It answered *can the LLM see the server*. It did not answer the question that decides whether MCP survives contact with production:
-
-> **When the LLM has a dozen tools and an ambiguous user request, does it pick the right tool, build a valid call, and get back something the rest of the system can trust?**
+When the LLM has a dozen tools and an ambiguous user request, does it pick the right tool, build a valid call, and get back something the rest of the system can trust?
 
 That outcome is not decided by your function bodies. It is decided by four pieces of metadata attached to every tool:
 
@@ -22,32 +23,37 @@ For an enterprise architect, the reframe is this: **tool metadata is a control p
 
 This tutorial builds three lessons across four tools (plus the Tutorial 01 baseline). The schema lessons run against a **real public dataset** so the contracts constrain actual rows, not hand-waved stubs.
 
+
+
 ---
 
-## Part 1 — The Mechanism: How an LLM Actually "Sees" Your Tools
+</br></br>
+
+## The Mechanism: How an LLM Actually "Sees" Your Tools
 
 Most MCP confusion comes from a wrong mental model. Engineers picture the LLM *calling* a function the way code calls a method. That is not what happens. Understanding the real sequence is the foundation for every metadata decision that follows.
 
-### How a Tool Travels: LLM, Client, and Server in Action
+### How a **Tool Travels**: LLM, Client, and Server in Action
 ---
 
-#### Main List of the **Travelrs**
+#### Main List of the **Travelers**
 
 > * An **MCP server** is any process that exposes tools over the Model Context Protocol — think of it like a REST API server: it advertises what it can do, accepts structured calls, and executes the actual work. The difference is the caller is an LLM, not another service.
 ---
 > * An **MCP client** is any application that connects to MCP servers, discovers tools, injects their definitions into a model's context, and routes tool calls back and forth. 
->   - **Examples:** Claude Desktop, Claude Code CLI, OpenAI Codex Desktop, and Copilot in VS Code can all act as MCP clients.
+>   **Example:** Claude Desktop, Claude Code CLI, OpenAI Codex Desktop, and Copilot in VS Code can all act as MCP clients.
 ---
 > * An **LLM** (Large Language Model) is a very well-read autocomplete engine that occasionally sounds like it knows what it's doing. You already know this — you're here.
 
 
-#### How do they travel
+#### How do they **Travel**
 
 1. **Discovery.** The MCP client connects to the server and issues `tools/list`. The server returns, for every tool, its `name`, `description`, `inputSchema`, and (when defined) `outputSchema`.
 2. **Injection.** The client serializes those tool definitions into the model's context window — as **text tokens**, alongside the system prompt and the user message. The model does not "have" your tools; it has a *textual description* of them sitting in its prompt.
 3. **Selection and argument construction.** When the user asks something, the model runs next-token prediction conditioned on the whole context. It *emits* a structured request: a tool name plus a JSON arguments object. The model executes nothing. It is pattern-matching the user's intent against the descriptions and schemas it can see.
 4. **Validation and execution.** The client validates the emitted arguments against `inputSchema`. Valid → it calls your function. Invalid → it can reject before any code runs.
 5. **Return.** Your function's result — shaped by `outputSchema` — goes *back into the context window* as more tokens, for the model to read, cite, or chain into the next step.
+
 
 ### Why this makes metadata a control point
 
@@ -70,46 +76,14 @@ A precise, well-scoped `description` acts as a strong retrieval signal during in
 
 ---
 
-## Part 2 — Data Setup (for the schema lessons)
+</br></br>
 
-The Input Schema and Output Schema lessons run against the **Titanic dataset** — the canonical public dataset for exactly this kind of teaching, with a clean mix of categorical and numeric columns.
 
-Download the CSV (choose either):
-
-- **No-friction mirror (recommended for this tutorial):** `https://www.kaggle.com/datasets/yasserh/titanic-dataset` — CC0 public domain, single CSV, no competition signup.
-- **Official competition source:** `https://www.kaggle.com/c/titanic/data` — requires a Kaggle account and accepting the competition rules.
-
-Place the file at `./data/titanic.csv` in the project folder.
-
-**Column dictionary** (the columns the schema lessons use):
-
-| Column | Type | Values / Notes |
-|---|---|---|
-| `Survived` | int | `0` = No, `1` = Yes |
-| `Pclass` | int | `1`, `2`, `3` (ticket class — SES proxy) |
-| `Sex` | string | `male`, `female` |
-| `Age` | float | fractional if < 1; some rows blank |
-| `SibSp` | int | siblings/spouses aboard |
-| `Parch` | int | parents/children aboard |
-| `Fare` | float | passenger fare |
-| `Embarked` | string | `C` = Cherbourg, `Q` = Queenstown, `S` = Southampton |
-
-The fixed, known set of values for `Pclass`, `Sex`, and `Embarked` is what makes this dataset ideal for an **enum** lesson — these are exactly the constraints the input schema should enforce.
-
----
-
-## Part 3 — The Four Fields, Tool by Tool
+## Lessons by Lab Work: The Four Fields, Tool by Tool
 
 We carry `hello_from_mcp` forward from Tutorial 01 as the **control specimen**: a tool with a name and description but no input parameters and only a primitive string return. Each new tool adds one dimension of metadata richness. The contrast against the control is deliberate — inspect them side by side and the lesson is visible in the Inspector UI itself.
 
-### 3.0 — Baseline (carried from Tutorial 01)
 
-```
-Tool:        hello_from_mcp
-Description: "Return a short greeting from the local MCP server."
-Input:       none
-Output:      str (primitive — no structured output schema)
-```
 
 Note what Inspector will show: a name, a description, an **empty input schema**, and **no meaningful output schema**. This is the floor. Everything below is what you gain by climbing off it.
 
@@ -254,183 +228,6 @@ Enums map cleanly: a Python `Literal["male","female"]` becomes a JSON Schema `en
 
 ---
 
-## Part 5 — Set Up and Generate the Server
-
-### Project Layout
-
-Each tutorial in this series is a fully self-contained project. `02-tool-metadata` has no dependency on `01-helloworld` or any other folder — it does not import from them, share a venv with them, or modify their files. That isolation is by design: each folder corresponds to one LinkedIn post and one video.
-
-```
-learning-mcp/
-└── 02-tool-metadata/
-    ├── .python-version
-    ├── main.py
-    ├── pyproject.toml
-    ├── server.py
-    ├── uv.lock
-    ├── data/
-    │   └── titanic.csv
-    └── .venv/
-```
-
----
-
-### Step 1 — Bootstrap the Project
-
-In VS Code terminal, navigate to the `learning-mcp` root and create the tutorial folder:
-
-```bash
-cd learning-mcp
-mkdir 02-tool-metadata
-cd 02-tool-metadata
-```
-
-Bootstrap the standalone project:
-
-```bash
-uv init --no-readme
-uv venv
-uv sync
-```
-
-Select the `.venv` interpreter in VS Code:
-`Ctrl+Shift+P` → `Python: Select Interpreter` → choose `.venv`
-
----
-
-### Step 2 — Place the Data
-
-From inside `02-tool-metadata/`:
-
-```bash
-mkdir data
-```
-
-Copy `titanic.csv` (downloaded in Part 2) into the `data/` folder. Verify the file is present:
-
-```bash
-# Windows
-dir data	itanic.csv
-
-# macOS / Linux
-ls -lh data/titanic.csv
-```
-
-Expected: file present, non-zero size.
-
----
-
-### Step 3 — Let Codex Generate the Server
-
-> **Boundary rule for Codex:** Work ONLY inside `02-tool-metadata/`. Do NOT open, reference, import from, or modify `01-helloworld` or any other folder in this repo.
-
-Paste the following prompt to Codex (or Claude Code) with `02-tool-metadata/` as the working directory:
-
-```text
-Create a brand new standalone server.py from scratch in this folder (02-tool-metadata/).
-Do NOT read from, import from, or modify any file outside this folder.
-
-Requirements:
-- Use Streamable HTTP on 127.0.0.1:8000 with path /mcp.
-- Configure host, port, and streamable_http_path on the FastMCP constructor.
-- Start the server with mcp.run(transport="streamable-http"); do not pass host, port,
-  or path to run().
-- Create main.py so running main.py starts the same server object from server.py.
-- Create pyproject.toml with dependencies: mcp[cli] >= 1.9.0, pandas.
-
-Tool 0 — recreate hello_from_mcp VERBATIM:
-  @mcp.tool(name="hello_from_mcp")
-  Docstring: "Return a short greeting from the local MCP server."
-  No parameters. Return type: str.
-  Body: return "Hello from the local MCP server."
-
-Data setup:
-- Import Path from pathlib.
-- Set DATA_PATH = Path(__file__).parent / "data" / "titanic.csv"
-- Load the CSV once at import time: TITANIC_DF = pd.read_csv(DATA_PATH)
-- Columns used: Survived (0/1 int), Pclass (1/2/3 int), Sex (male/female str),
-  Age (float, may be NaN), Fare (float), Embarked (C/Q/S str), Name (str),
-  PassengerId (int).
-
-For EVERY tool below: a precise @mcp.tool(name=...), a docstring whose FIRST line
-states what it does and when to use it (and, for the search pair, an explicit
-"Do NOT use..." boundary), fully type-hinted parameters, and a typed structured
-return (Pydantic BaseModel) so an outputSchema is generated. Use Literal types for
-all enumerations. Mark optional params with defaults.
-
-Tool 0 — name "hello_from_mcp" (VERBATIM from Tutorial 01)
-  @mcp.tool(name="hello_from_mcp")
-  Docstring: "Return a short greeting from the local MCP server."
-  No parameters. Return type: str.
-  Body: return "Hello from the local MCP server."
-
-Tool 1 — name "search_resumes"
-  Docstring: Search the candidate resume store for people matching a query. Use when
-  the user wants to FIND or shortlist candidates/people. Do NOT use to look up
-  past projects.
-  Param: query: str (REQUIRED).
-  Return model ResumeHit list: candidate_id: str, name: str, headline: str,
-  match_snippet: str, score: float.
-  Implementation: return 3-5 realistic hard-coded sample candidates filtered by
-  the query.
-
-Tool 2 — name "search_pds"
-  Docstring: Search the Project Data Sheet store of the firm's past projects. Use
-  when the user wants the firm's EXPERIENCE / past work on a topic. Do NOT use to
-  find people.
-  Param: query: str (REQUIRED).
-  Return model PdsHit list: pds_id: str, project_name: str, client: str,
-  match_snippet: str, score: float.
-  Implementation: return 3-5 realistic hard-coded sample projects filtered by
-  the query.
-
-Tool 3 — name "query_titanic_passengers"
-  Docstring: Return Titanic passenger rows matching optional filters.
-  Params (ALL optional unless noted):
-    pclass: Literal[1,2,3] | None = None
-    sex: Literal["male","female"] | None = None
-    embarked: Literal["C","Q","S"] | None = None
-    min_age: float | None = None
-    max_age: float | None = None
-    survived: bool | None = None    # maps to 0/1 in the data
-    limit: int = 20                 # clamp to range 1..100
-  Return model PassengerRow list: passenger_id: int, name: str, pclass: int,
-  sex: str, age: float | None, fare: float, survived: int.
-  Implementation: filter TITANIC_DF by whichever params are provided;
-  clamp limit to 1..100.
-
-Tool 4 — name "summarize_titanic_survival"
-  Docstring: Aggregate survival statistics grouped by one categorical column.
-  Param: group_by: Literal["sex","pclass","embarked","survived"] (REQUIRED).
-  Return model: group_by: str, groups: list of SurvivalGroup { value: str,
-  total: int, survived: int, survival_rate: float }.
-  Implementation: groupby the chosen column on TITANIC_DF; survival_rate =
-  survived / total rounded to 3 dp.
-
-Prioritize correct names, docstrings, type hints, enum Literals, and structured
-return models over implementation cleverness.
-```
-
----
-
-### Step 4 — Sync and Run
-
-After Codex writes the files:
-
-```bash
-uv sync
-uv run python server.py
-```
-
-Expected output:
-```
-INFO:     Started server process
-INFO:     Uvicorn running on http://127.0.0.1:8000
-```
-
-Leave this terminal open. The server blocks — it is now listening.
-
----
 
 ## Part 6 — Inspect Every Metadata Field in MCP Inspector
 
@@ -497,20 +294,6 @@ Translating the lessons into the production incidents they head off:
 
 The throughline for leadership: **MCP's enterprise value is that tools become typed, discoverable components.** That value is delivered entirely through metadata. Skip the metadata discipline and you have rebuilt bespoke integration glue with extra steps.
 
----
-
-## Troubleshooting
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| `FileNotFoundError` on startup | Titanic CSV missing | Download to `./data/titanic.csv` (see Part 2) |
-| `ModuleNotFoundError: pandas` | dependency not synced | Add `pandas` to pyproject; `uv sync` |
-| Tool appears but has no description | Missing/empty docstring | Add a docstring; first line = description; re-sync, restart |
-| Enum field shows as plain string in Inspector | Param typed as `str`, not `Literal[...]` | Use `Literal[...]`; re-sync |
-| `group_by` shows as optional | Parameter has a default value | Remove the default — required = no default |
-| No `outputSchema` for a tool | Return annotation is primitive (`-> str`) | Return a Pydantic `BaseModel`; ensure `mcp >= 1.9.0` |
-| Two search tools keep getting confused (model testing) | Descriptions lack a negative boundary | Add explicit "Do NOT use for…" to each docstring |
-| Inspector can't connect | Wrong transport or server not running | Transport = `Streamable HTTP`; start server first |
 
 ---
 
