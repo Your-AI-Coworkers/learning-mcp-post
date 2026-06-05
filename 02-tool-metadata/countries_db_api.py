@@ -6,6 +6,7 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+from tools_countries import country_count, get_country, search_countries, register
 
 BASE = Path(__file__).parent
 CSV_PATH = BASE / "countries.csv"
@@ -48,9 +49,8 @@ def _query(sql: str, params: tuple[str, ...] = ()) -> list[dict[str, str]]:
 
 def run() -> None:
     _build_db()
-    from tools import register
 
-    register(mcp, _query)
+    register(mcp)
     mcp.run(transport="streamable-http")
 
 

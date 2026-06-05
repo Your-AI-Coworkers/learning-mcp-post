@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 import unittest
 
-import countries_sqlite_api as api
+import countries_db_api as api
 
 
 class CountriesSqliteApiTest(unittest.TestCase):
