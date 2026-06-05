@@ -2,28 +2,28 @@
 
 ## Completed Work
 
-- Converted `countries.csv` into a SQLite database file.
-- Added a tiny Python MCP API for querying the country data.
-- Added automated tests for the SQLite API.
-- Recreated `tools.py` and then refactored the module layout.
-- Split the country-related code into:
-  - `tools_countries.py`
-  - `server_countries.py`
-  - `countries_db_api.py`
-- Moved `countries.csv` into `02-tool-metadata/data/`.
-- Removed the top-level `data/titanic.csv` and other obsolete files in the root `data/` folder.
-- Updated the SQLite-backed lookup helpers for country search and exact country lookup.
-- Verified the Python modules compile and the helper functions return expected results.
+- Built a SQLite-backed country dataset from `countries.csv`.
+- Created a small Python MCP API around the country data.
+- Added a unit test file for the SQLite API.
+- Moved the country CSV into `02-tool-metadata/data/`.
+- Reworked the folder structure to separate responsibilities:
+  - `tools_countries.py` for country DB helpers and MCP tool registration
+  - `server_countries.py` for MCP server startup and transport wiring
+  - `countries_db_api.py` for the public SQLite-backed API surface
+- Recreated and then simplified the earlier `tools.py` concept into a more focused country module.
+- Updated imports so the renamed modules line up with each other.
+- Verified the Python modules compile and the country lookup helpers work in the project virtual environment.
 
 ## Notes
 
-- The folder now contains a mix of MCP server code, database bootstrap logic, and test coverage.
-- The naming was cleaned up to better reflect the responsibilities of each file.
+- The folder is now centered on MCP-related country tooling instead of a generic `tools.py`.
+- The SQLite DB is generated from the CSV and can be used by both direct Python code and MCP tool registration.
+- Some older tutorial files and examples still exist in the folder tree and can be cleaned up later if they are no longer needed.
 
 ## Next
 
-- Rename `countries_sqlite_api_test.py` so it matches the new `countries_db_api.py` name.
-- Decide whether `countries_db_api.py` should stay as a thin re-export wrapper or become the main server entrypoint.
-- Update any startup instructions or README notes to point at `server_countries.py` and `tools_countries.py`.
-- Add a small smoke-test script for launching the MCP server and checking the Inspector connection path.
-- Clean up leftover legacy files in `02-tool-metadata` if they are no longer needed.
+- Rename the remaining test file so it matches `countries_db_api.py`.
+- Decide whether `countries_db_api.py` should remain a thin wrapper or become the primary app entrypoint.
+- Clean up or archive legacy tutorial and draft files that are no longer part of the current 02 workflow.
+- Add a short README note showing how to run the server and inspect it in MCP Inspector.
+- Keep the journal updated as the folder structure continues to evolve.
