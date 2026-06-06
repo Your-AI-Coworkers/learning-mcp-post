@@ -13,12 +13,16 @@
 - Recreated and then simplified the earlier `tools.py` concept into a more focused country module.
 - Updated imports so the renamed modules line up with each other.
 - Verified the Python modules compile and the country lookup helpers work in the project virtual environment.
+- Renamed the local Git branch from `02_mcp_inspector` to `02_tool_metadata`.
+- Committed the current documentation reshuffle and branch rename as a clean checkpoint.
+- Published the renamed branch to the remote and removed the old remote branch after confirming its remaining commits were not needed.
 
 ## Notes
 
 - The folder is now centered on MCP-related country tooling instead of a generic `tools.py`.
 - The SQLite DB is generated from the CSV and can be used by both direct Python code and MCP tool registration.
 - Some older tutorial files and examples still exist in the folder tree and can be cleaned up later if they are no longer needed.
+- The journal filename is still spelled `02_jouranal.md`, which looks like a typo but I left it unchanged to avoid renaming a file the user did not ask to rename.
 
 ## Next
 
