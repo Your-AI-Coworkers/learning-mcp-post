@@ -1,9 +1,4 @@
-# codex_setup.md
-# Purpose: Steps to set up, run, and test the MCP local server with OpenAI Codex
-# Date: 2026-06-01
-# Status: Draft v1
-
----
+# MCP Tutorial 1: Setup
 
 ## Project Layout
 
