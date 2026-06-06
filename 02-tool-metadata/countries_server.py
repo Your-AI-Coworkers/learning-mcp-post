@@ -6,7 +6,7 @@ from countries_tool_registration import register
 
 
 def run() -> None:
-    mcp = FastMCP("countries-sqlite-api", host="127.0.0.1", port=8001, streamable_http_path="/mcp")
+    mcp = FastMCP("countries-sqlite-api", host="127.0.0.1", port=8000, streamable_http_path="/mcp")
     register(mcp)
     mcp.run(transport="streamable-http")
 
