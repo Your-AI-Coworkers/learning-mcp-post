@@ -1,11 +1,6 @@
 
 
-# MCP Tutorial 02 — Tool Metadata (Part 2: LAB)
-*The Contract Between LLM and Execution*
-
----
-
-## **LAB** — Bad Tools vs Good Tools
+# **LAB** — Bad Tools vs Good Tools
 
 Here is the whole lab in one sentence: **the implementation doesn't change. The metadata does. And the behaviour changes completely.**
 

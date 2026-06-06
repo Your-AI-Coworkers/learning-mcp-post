@@ -1,13 +1,4 @@
-
-
-# MCP Tutorial 02 — Tool Metadata
-*The Contract Between LLM and Execution*
-
-Grab a cup of coffee. We're going to walk through this slowly, like a story, and by the end you'll see your tools the way the model sees them.
-
----
-
-## **THEORY** What is MCP Metadata
+# **THEORY** What is MCP Metadata
 
 **When the LLM has a dozen tools and an ambiguous user request, does it pick the right tool, build a valid call, and get back something the rest of the system can trust?**
 

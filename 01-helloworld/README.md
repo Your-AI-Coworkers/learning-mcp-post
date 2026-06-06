@@ -1,15 +1,8 @@
-# MCP Tutorial Series
----
+# MCP Tutorial — **Hello World**
+*Let us build a MCP Server*
 
-## Tutorial # 01 : **Hello World**
+Steps to set up, run, and test the MCP local server with OpenAI Codex
 
-> **Purpose:** Steps to set up, run, and test the MCP local server with OpenAI Codex
-
-> **Date:** 2026-06-02
-
-> **Status:** Final
-
-> **Version:** v2
 
 ---
 
@@ -155,3 +148,8 @@ Use MCP Inspector to validate tool metadata (name, description, input schema) in
 | `ModuleNotFoundError: mcp` | venv not activated or sync not run | `uv sync` then retry |
 | Tool returns error | MCP version mismatch | Confirm `mcp>=1.9.0` via `uv pip show mcp` |
 | Inspector can't connect | Wrong transport selected | Set transport to `Streamable HTTP`, not SSE |
+
+
+--- 
+
+> [Next >](/02-tool-metadata/README.md)
