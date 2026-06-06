@@ -397,8 +397,7 @@ Output schemas: TypedDict with all 20 field names declared
 
 ---
 
-<details>
-<summary><strong>Appendix: Full "Good Monday" countries_tool_registration.py</strong></summary>
+### Appendix: Full "Good Monday" countries_tool_registration.py
 
 ```python
 # countries_tool_registration.py
@@ -489,7 +488,7 @@ def register(mcp) -> None:
 
 > **Note:** The `search_countries_by_name` function above accepts a `region` parameter in its signature but doesn't use it in the body yet — the underlying `search_countries()` query would need a `WHERE` clause for region filtering. The parameter is shown here to demonstrate how `Literal` types surface as enum constraints in the JSON schema. Wiring it into the SQL is left as an exercise.
 
-</details>
+
 
 ---
 
