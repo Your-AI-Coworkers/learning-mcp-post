@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
-from tools_countries import register
+from countries_tool_registration import register
 
 
 def run() -> None:

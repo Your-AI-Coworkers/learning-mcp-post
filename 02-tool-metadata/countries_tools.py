@@ -55,22 +55,3 @@ def search_countries(name_like: str) -> list[dict[str, str]]:
 def get_country(country: str) -> dict[str, str] | None:
     rows = _query('SELECT * FROM countries WHERE TRIM("Country") = TRIM(?) LIMIT 1', (country,))
     return rows[0] if rows else None
-
-
-def register(mcp) -> None:
-    _build_db()
-
-    @mcp.tool()
-    def country_count_tool() -> int:
-        """Return the number of rows in the countries SQLite database."""
-        return country_count()
-
-    @mcp.tool()
-    def search_countries_tool(name_like: str) -> list[dict[str, str]]:
-        """Search countries by partial name match."""
-        return search_countries(name_like)
-
-    @mcp.tool()
-    def get_country_tool(country: str) -> dict[str, str] | None:
-        """Return a single country row by exact country name."""
-        return get_country(country)
