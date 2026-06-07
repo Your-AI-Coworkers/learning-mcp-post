@@ -1,0 +1,6 @@
+name: learning-mcp
+services:
+  functions:
+    project: .
+    language: python
+    host: functionapp

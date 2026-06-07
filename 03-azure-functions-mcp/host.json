@@ -1,0 +1,17 @@
+{
+  "version": "2.0",
+  "extensions": {
+    "mcp": {
+      "instructions": "Use these tools to explore a small countries data set.",
+      "serverName": "countries-azure-functions-mcp",
+      "serverVersion": "1.0.0",
+      "system": {
+        "webhookAuthorizationLevel": "Anonymous"
+      }
+    }
+  },
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle.Preview",
+    "version": "[4.32.0, 5.0.0)"
+  }
+}
