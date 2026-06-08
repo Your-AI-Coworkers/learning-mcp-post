@@ -2,11 +2,27 @@
 
 This lesson hosts a small Model Context Protocol server inside Azure Functions.
 
-## Files
 
-- `function_app.py` - MCP tool implementations
-- `host.json` - Azure Functions host settings for MCP
-- `local.settings.json` - local development settings
-- `requirements.txt` - Python dependencies
-- `azure.yaml` - azd deployment descriptor
-- `data/countries.csv` - stand-in data source
+
+
+# Tasks
+
+06/01 - 06/07
+- MCP Server created
+    - w/ FastMCP Python
+    - w/ Azure Functions MCP
+    - Auth is open
+- Client
+    - MCP Inspector
+    - curl for troubleshoot 
+    - Codex (with KS Eng account)
+
+
+## next
+
+- Client test
+    - Claude Cowork
+    - Copilot
+
+- MCP Server with Auth on
+
