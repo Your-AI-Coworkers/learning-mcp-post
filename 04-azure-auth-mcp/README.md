@@ -1,9 +1,8 @@
-# MCP Tutorial - Azure Functions MCP with Auth
-*This lesson hosts a small Model Context Protocol server inside Azure Functions with **Authorization** enabled.*
+# MCP Tutorial - Azure Functions MCP with Auth Enabled
+
+This lesson hosts a small Model Context Protocol server inside Azure Functions with Authorization.
 
 ---
-
-
 
 ## Enabling Auth on the MCP Endpoint
 
