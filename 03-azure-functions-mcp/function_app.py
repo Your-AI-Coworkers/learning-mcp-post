@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import csv
+import json
+import logging
 from pathlib import Path
 
 import azure.functions as func
@@ -20,54 +22,65 @@ def _load_rows() -> list[dict[str, str]]:
         ]
 
 
-def _country_rows() -> list[dict[str, str]]:
-    return _load_rows()
+tool_properties_search = json.dumps([
+    {
+        "propertyName": "name_like",
+        "propertyType": "string",
+        "description": "Partial country name to match (case-insensitive).",
+        "isRequired": True,
+        "isArray": False,
+    }
+])
+
+tool_properties_get = json.dumps([
+    {
+        "propertyName": "country",
+        "propertyType": "string",
+        "description": "Exact country name.",
+        "isRequired": True,
+        "isArray": False,
+    }
+])
 
 
-@app.generic_trigger(
+@app.mcp_tool_trigger(
     arg_name="context",
-    type="mcpToolTrigger",
-    toolName="country_count",
+    tool_name="country_count",
     description="Return the number of countries in the CSV data set.",
-    toolProperties="[]",
+    tool_properties="[]",
 )
-def country_count_mcp(context) -> int:
-    return len(_country_rows())
+def country_count_mcp(context) -> str:
+    return str(len(_load_rows()))
 
 
-@app.generic_trigger(
+@app.mcp_tool_trigger(
     arg_name="context",
-    type="mcpToolTrigger",
-    toolName="search_countries",
+    tool_name="search_countries",
     description="Search countries by a partial, case-insensitive name match.",
-    toolProperties='[{"propertyName":"name_like","propertyType":"string","description":"Partial country name to match.","isRequired":true,"isArray":false}]',
+    tool_properties=tool_properties_search,
 )
-def search_countries_mcp(context) -> list[dict[str, str]]:
-    name_like = str(context.trigger_metadata.get("mcptoolargs", {}).get("name_like", "")).strip().lower()
+def search_countries_mcp(context) -> str:
+    content = json.loads(context)
+    name_like = content["arguments"].get("name_like", "").strip().lower()
     if not name_like:
-        return []
-
-    matches: list[dict[str, str]] = []
-    for row in _country_rows():
-        country = row.get("Country", "")
-        if name_like in country.lower():
-            matches.append(row)
-    return matches[:25]
+        return json.dumps([])
+    matches = [
+        row for row in _load_rows()
+        if name_like in row.get("Country", "").lower()
+    ]
+    return json.dumps(matches[:25])
 
 
-@app.generic_trigger(
+@app.mcp_tool_trigger(
     arg_name="context",
-    type="mcpToolTrigger",
-    toolName="get_country",
+    tool_name="get_country",
     description="Return a single country row by exact country name.",
-    toolProperties='[{"propertyName":"country","propertyType":"string","description":"Exact country name.","isRequired":true,"isArray":false}]',
+    tool_properties=tool_properties_get,
 )
-def get_country_mcp(context) -> dict[str, str] | None:
-    country = str(context.trigger_metadata.get("mcptoolargs", {}).get("country", "")).strip().lower()
-    if not country:
-        return None
-
-    for row in _country_rows():
+def get_country_mcp(context) -> str:
+    content = json.loads(context)
+    country = content["arguments"].get("country", "").strip().lower()
+    for row in _load_rows():
         if row.get("Country", "").strip().lower() == country:
-            return row
-    return None
+            return json.dumps(row)
+    return json.dumps(None)
