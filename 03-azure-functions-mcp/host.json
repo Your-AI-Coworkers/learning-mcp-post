@@ -6,7 +6,7 @@
       "serverName": "countries-azure-functions-mcp",
       "serverVersion": "1.0.0",
       "system": {
-        "webhookAuthorizationLevel": "Anonymous"
+        "webhookAuthorizationLevel": "System"
       }
     }
   },
