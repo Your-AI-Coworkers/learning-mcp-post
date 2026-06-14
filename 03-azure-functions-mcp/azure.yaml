@@ -1,6 +1,0 @@
-name: learning-mcp
-services:
-  api:
-    project: .
-    language: python
-    host: function
